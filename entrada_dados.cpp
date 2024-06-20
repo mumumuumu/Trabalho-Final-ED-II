@@ -3,6 +3,7 @@
 #include <locale>
 #include <codecvt>
 #include <unordered_map>
+#include "huffman_tree.cpp"
 
 int main() {
     std::locale::global(std::locale(""));
@@ -27,12 +28,16 @@ int main() {
     }
 
     arq.close();
+    std::wcout << L"arquivo aberto com sucesso\n";
+
 
     std::wcout << word_count.size() << L" caracteres distintos encontrados\n";
 
     for (const auto& entry : word_count) {
         std::wcout << entry.first << L": " << entry.second << L'\n';
+
     }
+    auto hTree = huffman_tree::create_huffman(word_count);
 
     return 0;
 }
