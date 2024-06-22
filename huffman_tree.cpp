@@ -6,18 +6,19 @@
 #include <iostream>
 #include <locale>
 #include <codecvt>
+#include <string>
 
 namespace huffman_tree{
 
 struct node {
-  wchar_t value;
+  wchar_t caracter;
   int frequency;
   node *left, *right;
 };
 
-node *create_node(const wchar_t &value, const int &frequency ) {
+node *create_node(const wchar_t &caracter, const int &frequency ) {
   node *p = new node;
-  p->value = value;
+  p->caracter = caracter;
   p->frequency = frequency;
   p->left = p->right = nullptr;
   return p;
@@ -26,7 +27,7 @@ class Compare
 {
     public:
     bool operator()(node *n1, node *n2){
-        return n1->frequency < n2->frequency;
+        return n1->frequency > n2->frequency;
 
     }
 };
@@ -43,7 +44,7 @@ node* create_huffman(std::unordered_map<wchar_t, int> frequency){
             auto *right = pq.top();
             pq.pop();
             node* auxNode = new node;
-            auxNode->value = '\0';
+            auxNode->caracter = L'+';
             auxNode->frequency = left->frequency+right->frequency;
             auxNode ->left = left;
             auxNode ->right = right;
@@ -53,5 +54,15 @@ node* create_huffman(std::unordered_map<wchar_t, int> frequency){
         node* root = pq.top();    
         return root;   
     }
+
+void show(node *root, int level = 0, const std::wstring &prefix = L"√ ") {
+  if (!root) return;
+
+  auto ident = std::wstring(level * 4, ' ');
+
+  std::wcout << ident << L"N:"<<level<< prefix << root->caracter << L"--"<<root->frequency << std::endl;
+  show(root->left, level + 1, L"↙ ");
+  show(root->right, level + 1, L"↘ ");
+}
 
 };

@@ -11,7 +11,7 @@ int main() {
     std::wifstream arq("output.txt");
     
     if (!arq) {
-        std::cout << "open() falhou\n";
+        std::wcout << L"Arquivo não encontrado!\n";
         return 1;
     }
 
@@ -19,25 +19,19 @@ int main() {
     wchar_t ch;
 
     if (arq.is_open()) {
-        std::wcout << L"arquivo aberto com sucesso\n";
-        
         while (arq.get(ch)) {
-        
             word_count[ch]++;
         }
     }
 
     arq.close();
-    std::wcout << L"arquivo aberto com sucesso\n";
-
-
-    std::wcout << word_count.size() << L" caracteres distintos encontrados\n";
-
     for (const auto& entry : word_count) {
         std::wcout << entry.first << L": " << entry.second << L'\n';
 
     }
     auto hTree = huffman_tree::create_huffman(word_count);
-
+    std::wcout << L" Árvore de huffman criada!\n";
+    std::wcout << L" ------------------------------------\n";
+    huffman_tree::show(hTree);
     return 0;
 }
