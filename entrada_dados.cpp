@@ -5,43 +5,45 @@
 #include <unordered_map>
 #include "huffman_tree.cpp"
 
+
+void menu();
 int main() {
     std::locale::global(std::locale(""));
-    std::wifstream arq("output.txt");
+    menu();
+    int op;
+    std::cin >> op;
+    switch (op)
+    {
+    case 1:
+        huffman_tree::compressFile();
+        // huffman_tree::showCodeTable();
+        //huffman_tree::showTree();
+        break;
+    case 2:
+        huffman_tree::descompressFile();
+        break;
+
+    default:
+        break;
+    }
     
-    if (!arq) {
-        std::wcout << L"Arquivo não encontrado!\n";
-        return 1;
-    }
-
-    std::unordered_map<wchar_t, int> word_count;
-    wchar_t ch;
-
-    if (arq.is_open()) {
-        while (arq.get(ch)) {
-            word_count[ch]++;
-        }
-    }
-
-    arq.close();
+    // auto word_count =  huffman_tree::calculate_frequency("output.txt");
     // for (const auto& entry : word_count) {
     //     std::wcout << entry.first << L": " << entry.second << L'\n';
 
     // }
-    std::wcout << L" ------------------------------------\n";
-    auto hTree = huffman_tree::create_huffman(word_count);
-    std::wcout << L" Árvore de huffman criada!\n";
-    std::wcout << L" ------------------------------------\n";
-    std::wcout << L" Árvore Gerada\n";
-    huffman_tree::show(hTree);
-    std::wcout << L" ------------------------------------\n";
-    std::wcout << L" Geração do Código\n";
-    std::unordered_map<wchar_t, std::string> dicionario;
-    huffman_tree::generate_codification(dicionario,hTree,"");
-    for (const auto &entry : dicionario) {
-        std::wcout << entry.first << L": " << entry.second.c_str() << std::endl;
-    }
-    std::wcout << L" ------------------------------------\n";
+    // std::wcout << L" ------------------------------------\n";
+    // huffman_tree::compressFile();
+    // std::wcout << L" ------------------------------------\n";
 
     return 0;
+}
+void menu() {
+    std::cout << "==================================" << std::endl;
+    std::cout << "    Compactação de Arquivos" << std::endl;
+    std::cout << "==================================" << std::endl;
+    std::cout << "1. Compactar arquivo" << std::endl;
+    std::cout << "2. Descompactar arquivo" << std::endl;
+    std::cout << "3. Sair" << std::endl;
+    std::cout << "Escolha uma opção: ";
 }
