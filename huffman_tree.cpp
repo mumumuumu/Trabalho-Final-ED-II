@@ -55,6 +55,11 @@ node* create_huffman(std::unordered_map<wchar_t, int> frequency){
         return root;   
     }
 
+int height(node *root) {
+  if (root == nullptr) return -1;
+  return std::max(height(root->left), height(root->right)) + 1;
+}
+
 void show(node *root, int level = 0, const std::wstring &prefix = L"√ ") {
   if (!root) return;
 
@@ -65,4 +70,12 @@ void show(node *root, int level = 0, const std::wstring &prefix = L"√ ") {
   show(root->right, level + 1, L"↘ ");
 }
 
+void generate_codification(std::unordered_map<wchar_t, std::string> &dicionario, node *root, const std::string &caminho) {
+  if (root->left == nullptr && root->right == nullptr) {
+    dicionario[root->caracter] = caminho;
+  } else {
+    generate_codification(dicionario, root->left, caminho + "0");
+    generate_codification(dicionario, root->right, caminho + "1");
+  }
+}
 };

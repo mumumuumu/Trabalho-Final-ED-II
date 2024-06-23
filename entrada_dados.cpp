@@ -7,7 +7,6 @@
 
 int main() {
     std::locale::global(std::locale(""));
-   
     std::wifstream arq("output.txt");
     
     if (!arq) {
@@ -25,13 +24,24 @@ int main() {
     }
 
     arq.close();
-    for (const auto& entry : word_count) {
-        std::wcout << entry.first << L": " << entry.second << L'\n';
+    // for (const auto& entry : word_count) {
+    //     std::wcout << entry.first << L": " << entry.second << L'\n';
 
-    }
+    // }
+    std::wcout << L" ------------------------------------\n";
     auto hTree = huffman_tree::create_huffman(word_count);
     std::wcout << L" Árvore de huffman criada!\n";
     std::wcout << L" ------------------------------------\n";
+    std::wcout << L" Árvore Gerada\n";
     huffman_tree::show(hTree);
+    std::wcout << L" ------------------------------------\n";
+    std::wcout << L" Geração do Código\n";
+    std::unordered_map<wchar_t, std::string> dicionario;
+    huffman_tree::generate_codification(dicionario,hTree,"");
+    for (const auto &entry : dicionario) {
+        std::wcout << entry.first << L": " << entry.second.c_str() << std::endl;
+    }
+    std::wcout << L" ------------------------------------\n";
+
     return 0;
 }
