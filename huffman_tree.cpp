@@ -47,19 +47,19 @@ std::string read_path(){
 
 std::unordered_map<wchar_t, int> calculate_frequency(const std::string path){
     std::wifstream arq(path);
-    std::unordered_map<wchar_t, int> word_count;
-    // if (!arq) {
-    //     std::wcout << L"Arquivo não encontrado!\n";
-    //     return 1;
-    // }
+    std::unordered_map<wchar_t, int> caracter_count;
+    if (!arq) {
+        std::wcout << L"================ Arquivo não encontrado! ==================\n";
+        return caracter_count;
+    }
     wchar_t ch;
     if (arq.is_open()) {
         while (arq.get(ch)) {
-            word_count[ch]++;
+            caracter_count[ch]++;
         }
     }
     arq.close();
-    return word_count;
+    return caracter_count;
 }
 
 node* create_huffman(std::unordered_map<wchar_t, int> frequency){
@@ -82,7 +82,7 @@ node* create_huffman(std::unordered_map<wchar_t, int> frequency){
         }
         node* root = pq.top();    
         return root;   
-    }
+}
 
 void generate_codification(std::unordered_map<wchar_t, std::wstring> &dicionario, node *root, const std::wstring &caminho) {
   if (root->left == nullptr && root->right == nullptr) {
@@ -94,22 +94,16 @@ void generate_codification(std::unordered_map<wchar_t, std::wstring> &dicionario
 }
 
 
-// void showTree(node *root, int level = 0, const std::wstring &prefix = L"√ ") {
-//   if (!root) return;
-
-//   auto ident = std::wstring(level * 4, ' ');
-
-//   std::wcout << ident << L"N:"<<level<< prefix << root->caracter << L"--"<<root->frequency << std::endl;
-//   showTree(root->left, level + 1, L"↙ ");
-//   showTree(root->right, level + 1, L"↘ ");
-// }
 void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminho) {
     if (root == nullptr) {
         return;
     }
 
+    auto aspas = L"\"";
+    std::wstring nodeId = std::to_wstring(root->frequency) + caminho;
+
     if (root->left == nullptr && root->right == nullptr) {
-        dot += L"\"" + std::to_wstring(root->caracter )+ L"\"";
+        dot += aspas + nodeId + aspas;
         dot += L"[shape=record, label=\"{{";
         dot += root->caracter;
         dot += L"|";
@@ -118,26 +112,22 @@ void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminh
         dot += caminho;
         dot += L"}\"];\n";
     } else {
-        //Esquerda
+        dot += aspas + nodeId + aspas;
+        dot += L"[label=";
         dot += std::to_wstring(root->frequency);
+        dot += L"];\n";
+        //Conexão com o nó da esquerda
+        std::wstring leftId = std::to_wstring(root->left->frequency) + caminho + L"0";
+        dot += aspas + nodeId + aspas;
         dot += L"->";
-        if(root->left->caracter == (wchar_t)L'I'){
-          dot += std::to_wstring(root->left->frequency);
-        }else{  
-        dot += L"\"" + std::to_wstring(root->left->caracter )+ L"\"";
-        }
+        dot += aspas + leftId + aspas;
         dot += L";\n";
 
-        //Direita
-        dot += std::to_wstring(root->frequency);
+        std::wstring rightId = std::to_wstring(root->right->frequency) + caminho + L"1";
+        dot += aspas + nodeId + aspas;
         dot += L"->";
-        if(root->right->caracter == (wchar_t)L'I'){
-          dot += std::to_wstring(root->right->frequency);
-        }else{  
-        dot += L"\"" + std::to_wstring(root->right->caracter) +L"\"";
-        }        
-        dot += L"[label=1]";
-        dot += L";\n";
+        dot += aspas + rightId + aspas;
+        dot += L"[label=1];\n";
 
         showTreeRecursive(dot, root->left, caminho + L"0");
         showTreeRecursive(dot, root->right, caminho + L"1");
@@ -163,7 +153,6 @@ void compressFile(){
     auto root = create_huffman(caracter_count);
     std::unordered_map<wchar_t, std::wstring> dicionario;
     generate_codification(dicionario,root,L"");
-    //showTree(root);
     showTree(root);
     // for (const auto &entry : dicionario) {
     //     std::wcout << entry.first << L": " << entry.second.c_str() << std::endl;
