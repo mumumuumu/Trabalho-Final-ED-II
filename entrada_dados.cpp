@@ -4,8 +4,9 @@
 #include <codecvt>
 #include <unordered_map>
 #include "huffman_tree.cpp"
-
-
+std::unordered_map<wchar_t, int> caracter_count;
+std::string path;
+huffman_tree::node* root;
 void menu();
 int main() {
     std::locale::global(std::locale(""));
@@ -16,27 +17,24 @@ int main() {
         std::cin >> op;
         switch (op) {
         case 1:
-            huffman_tree::compressFile();
+            path = huffman_tree::read_path();
+            caracter_count = huffman_tree::calculate_frequency(path);
+            root = huffman_tree::create_huffman(caracter_count);
+            huffman_tree::compressFile(root, path);
             break;
-        case 2: {
-            auto path = huffman_tree::read_path();
-            auto caracter_count = huffman_tree::calculate_frequency(path);
-            auto root = huffman_tree::create_huffman(caracter_count);
+        case 2: 
             huffman_tree::showTree(root);
             break;
-        }
+        
         case 3:
-            huffman_tree::showFrequenciesTable();
+            huffman_tree::showFrequenciesTable(root, path, caracter_count);
             break;
-        case 4: {
-            // auto path = huffman_tree::read_path();
-            // auto caracter_count = huffman_tree::calculate_frequency(path);
-            // auto root = huffman_tree::create_huffman(caracter_count);
-            // huffman_tree::descompressFile();
-            std::cout << "Em breve..." << std::endl;
+        case 4: 
+            huffman_tree::descompressFile(root);
+            std::cout << "Descomprimindo..." << std::endl;
 
             break;
-        }
+        
         case 5:
             std::cout << "Saindo..." << std::endl;
             break;
@@ -44,10 +42,12 @@ int main() {
             std::cout << "Opção inválida! Por favor, escolha novamente." << std::endl;
             break;
         }
-    }
+        }
+    
 
     return 0;
 }
+
 
 void menu() {
     std::cout << "==================================" << std::endl;

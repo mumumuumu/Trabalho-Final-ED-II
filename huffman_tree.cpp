@@ -153,10 +153,10 @@ void showFrequencies(const std::unordered_map<wchar_t, int> &frequencies, const 
     }
 }
 
-void showFrequenciesTable() {
-    auto path = read_path();
-    auto caracter_count = calculate_frequency(path);
-    auto root = create_huffman(caracter_count);
+void showFrequenciesTable(node* root, std::string path, std::unordered_map<wchar_t,int> caracter_count) {
+    //auto path = read_path();
+    //auto caracter_count = calculate_frequency(path);
+    //auto root = create_huffman(caracter_count);
     std::unordered_map<wchar_t, std::wstring> dicionario;
     generate_codification(dicionario, root, L"");
     showFrequencies(caracter_count, dicionario);
@@ -195,10 +195,10 @@ void compress(std::wstring encodedString){ //implementar para que árvore seja g
 
 }
 
-void compressFile(){
-    auto path = read_path();
-    auto caracter_count = calculate_frequency(path);
-    auto root = create_huffman(caracter_count);
+void compressFile(node* root, std::string path){
+    //auto path = read_path();
+    //auto caracter_count = calculate_frequency(path);
+   // auto root = create_huffman(caracter_count);
     std::unordered_map<wchar_t, std::wstring> dicionario;
     generate_codification(dicionario, root, L"");
 
