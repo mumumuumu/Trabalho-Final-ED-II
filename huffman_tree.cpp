@@ -162,7 +162,7 @@ void showFrequenciesTable() {
     showFrequencies(caracter_count, dicionario);
 }
 
-void compress(std::wstring encodedString){
+void compress(std::wstring encodedString){ //implementar para que árvore seja guardada com o compactado
   FILE *arquivo = fopen("compactado.bin","wb");
   int i =0,j=7;
   unsigned char mascara,byte = 0;
@@ -213,6 +213,37 @@ void compressFile(){
 
 }
 
-void descompressFile() {
+unsigned int isBitOne(unsigned char byte, int i){
+  unsigned char mascara = (1<<i);
+  return byte & mascara;
+
+}
+
+void descompressFile(node *root) { //implementar para que árvore seja guardada com o compactado
+    FILE *arquivo = fopen("compactado.bin", "rb");
+    std::wofstream descompactado("descompactado.txt");
+  
+    unsigned char byte;
+    node *aux = root;
+
+    if (arquivo && descompactado) {
+        while (fread(&byte, sizeof(unsigned char), 1, arquivo)) {
+            for (int i = 7; i >= 0; i--) {
+                if (isBitOne(byte, i)) {
+                    aux = aux->right;
+                } else {
+                    aux = aux->left;
+                }
+                if (aux->left == nullptr && aux->right == nullptr) {
+                    descompactado << aux->caracter;
+                    aux = root;
+                }
+            }
+        }
+        fclose(arquivo);
+        descompactado.close();
+    } else {
+        std::wcout << L"Erro ao abrir arquivos para descompressão!\n";
+    }
 }
 };
