@@ -26,9 +26,7 @@ int main() {
             break;
         }
         case 3:
-            //huffman_tree::showFrequenciesTable();
-            std::cout << "Em breve..." << std::endl;
-
+            huffman_tree::showFrequenciesTable();
             break;
         case 4: {
             // auto path = huffman_tree::read_path();

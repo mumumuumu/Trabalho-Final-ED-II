@@ -93,7 +93,7 @@ void generate_codification(std::unordered_map<wchar_t, std::wstring> &dicionario
   }
 }
 
-
+// FUNÇÕES DE VISUALIZAÇÃO
 void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminho) {
     if (root == nullptr) {
         return;
@@ -145,6 +145,21 @@ void showTree(node *root) {
     dot << L"\n}\n";
     dot.close();
     system("dot /tmp/huffman.dot -Tx11");
+}
+void showFrequencies(const std::unordered_map<wchar_t, int> &frequencies, const std::unordered_map<wchar_t, std::wstring> &dicionario) {
+    std::wcout << L"Tabela de Frequências e Códigos de Huffman:\n";
+    for (const auto &pair : frequencies) {
+        std::wcout << pair.first << L" / " << pair.second << L" / " << dicionario.at(pair.first) << L'\n';
+    }
+}
+
+void showFrequenciesTable() {
+    auto path = read_path();
+    auto caracter_count = calculate_frequency(path);
+    auto root = create_huffman(caracter_count);
+    std::unordered_map<wchar_t, std::wstring> dicionario;
+    generate_codification(dicionario, root, L"");
+    showFrequencies(caracter_count, dicionario);
 }
 
 void compress(std::wstring encodedString){
