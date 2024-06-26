@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <queue>
 #include <iostream>
+#include <iomanip>
+#include <algorithm>
 #include <locale>
 #include <codecvt>
 #include <string>
@@ -40,7 +42,7 @@ class Compare
 
 std::string read_path(){
   std::string path;
-  std::cout<< "Insira caminho do arquivo: ";
+  std::wcout<< L"Insira caminho do arquivo: ";
   std::cin >> path;
   return path;
 }
@@ -94,6 +96,20 @@ void generate_codification(std::unordered_map<wchar_t, std::wstring> &dicionario
 }
 
 // FUNÇÕES DE VISUALIZAÇÃO
+std::wstring escapeCharacter(wchar_t ch) {
+    switch (ch) {
+        case L'\n':
+            return L"endl";
+        case L'\t':
+            return L"\\t";
+        case L'\r':
+            return L"\\r";
+        case L' ':
+            return L"espaço";
+        default:
+            return std::wstring(1, ch);
+    }
+}
 void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminho) {
     if (root == nullptr) {
         return;
@@ -105,7 +121,7 @@ void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminh
     if (root->left == nullptr && root->right == nullptr) {
         dot += aspas + nodeId + aspas;
         dot += L"[shape=record, label=\"{{";
-        dot += root->caracter;
+        dot += escapeCharacter(root->caracter);
         dot += L"|";
         dot += std::to_wstring(root->frequency);
         dot += L"}|";
@@ -116,7 +132,7 @@ void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminh
         dot += L"[label=";
         dot += std::to_wstring(root->frequency);
         dot += L"];\n";
-        //Conexão com o nó da esquerda
+
         std::wstring leftId = std::to_wstring(root->left->frequency) + caminho + L"0";
         dot += aspas + nodeId + aspas;
         dot += L"->";
@@ -146,17 +162,27 @@ void showTree(node *root) {
     dot.close();
     system("dot /tmp/huffman.dot -Tx11");
 }
+
 void showFrequencies(const std::unordered_map<wchar_t, int> &frequencies, const std::unordered_map<wchar_t, std::wstring> &dicionario) {
-    std::wcout << L"Tabela de Frequências e Códigos de Huffman:\n";
-    for (const auto &pair : frequencies) {
-        std::wcout << pair.first << L" / " << pair.second << L" / " << dicionario.at(pair.first) << L'\n';
+    std::vector<std::pair<wchar_t, int>> sortedFrequencies(frequencies.begin(), frequencies.end());
+
+    std::sort(sortedFrequencies.begin(), sortedFrequencies.end(), [](const std::pair<wchar_t, int> &a, const std::pair<wchar_t, int> &b) {
+        return a.second > b.second;
+    });
+
+    std::wcout << std::left << std::setw(10) << L"Caractere" << std::setw(15) << L"Frequência" << std::setw(20) << L"Código de Huffman" << std::endl;
+    std::wcout << std::left << std::setw(10) << L"---------" << std::setw(15) << L"----------" << std::setw(20) << L"----------------" << std::endl;
+
+    for (const auto &pair : sortedFrequencies) {
+        std::wcout << std::left << std::setw(10) << escapeCharacter(pair.first)
+                   << std::setw(15) << pair.second
+                   << std::setw(20) << dicionario.at(pair.first)
+                   << std::endl;
     }
 }
 
 void showFrequenciesTable(node* root, std::string path, std::unordered_map<wchar_t,int> caracter_count) {
-    //auto path = read_path();
-    //auto caracter_count = calculate_frequency(path);
-    //auto root = create_huffman(caracter_count);
+
     std::unordered_map<wchar_t, std::wstring> dicionario;
     generate_codification(dicionario, root, L"");
     showFrequencies(caracter_count, dicionario);
@@ -196,9 +222,6 @@ void compress(std::wstring encodedString){ //implementar para que árvore seja g
 }
 
 void compressFile(node* root, std::string path){
-    //auto path = read_path();
-    //auto caracter_count = calculate_frequency(path);
-   // auto root = create_huffman(caracter_count);
     std::unordered_map<wchar_t, std::wstring> dicionario;
     generate_codification(dicionario, root, L"");
 
@@ -242,6 +265,8 @@ void descompressFile(node *root) { //implementar para que árvore seja guardada 
         }
         fclose(arquivo);
         descompactado.close();
+    std::wcout << L"=========== Arquivo descomprimido! ===========\n";
+
     } else {
         std::wcout << L"Erro ao abrir arquivos para descompressão!\n";
     }

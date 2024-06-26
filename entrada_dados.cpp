@@ -18,6 +18,7 @@ int main() {
         switch (op) {
         case 1:
             path = huffman_tree::read_path();
+            std::wcout << "Comprimindo..." << std::endl;
             caracter_count = huffman_tree::calculate_frequency(path);
             root = huffman_tree::create_huffman(caracter_count);
             huffman_tree::compressFile(root, path);
@@ -30,16 +31,16 @@ int main() {
             huffman_tree::showFrequenciesTable(root, path, caracter_count);
             break;
         case 4: 
+            std::wcout << "Descomprimindo..." << std::endl;
             huffman_tree::descompressFile(root);
-            std::cout << "Descomprimindo..." << std::endl;
 
             break;
         
         case 5:
-            std::cout << "Saindo..." << std::endl;
+            std::wcout << "Saindo..." << std::endl;
             break;
         default:
-            std::cout << "Opção inválida! Por favor, escolha novamente." << std::endl;
+            std::wcout << "Opção inválida! Por favor, escolha novamente." << std::endl;
             break;
         }
         }
@@ -50,13 +51,13 @@ int main() {
 
 
 void menu() {
-    std::cout << "==================================" << std::endl;
-    std::cout << "    Compactação de Arquivos" << std::endl;
-    std::cout << "==================================" << std::endl;
-    std::cout << "1. Compactar arquivo" << std::endl;
-    std::cout << "2. Mostrar árvore de Huffman" << std::endl;
-    std::cout << "3. Mostrar tabela de frequências e códigos de Huffman" << std::endl;
-    std::cout << "4. Descompactar arquivo" << std::endl;
-    std::cout << "5. Sair" << std::endl;
-    std::cout << "Escolha uma opção: ";
+    std::wcout << L"==================================" << std::endl;
+    std::wcout << L"    Compactação de Arquivos" << std::endl;
+    std::wcout << L"==================================" << std::endl;
+    std::wcout << L"1. Compactar arquivo" << std::endl;
+    std::wcout << L"2. Mostrar árvore de Huffman" << std::endl;
+    std::wcout << L"3. Mostrar tabela de frequências e códigos de Huffman" << std::endl;
+    std::wcout << L"4. Descompactar arquivo" << std::endl;
+    std::wcout << L"5. Sair" << std::endl;
+    std::wcout << L"Escolha uma opção: ";
 }
