@@ -9,15 +9,17 @@
 #include <locale>
 #include <codecvt>
 #include <string>
+#include <filesystem>
 
 namespace huffman_tree{
 
+//Estrutura do nó da árvore
 struct node {
   wchar_t caracter;
   int frequency;
   node *left, *right;
 };
-
+//Função para criar o nó utilizando caracter e frequeência a struct
 node *create_node(const wchar_t &caracter, const int &frequency ) {
   node *p = new node;
   p->caracter = caracter;
@@ -26,11 +28,7 @@ node *create_node(const wchar_t &caracter, const int &frequency ) {
   return p;
 }
 
-int height(node *root) {
-  if (root == nullptr) return -1;
-  return std::max(height(root->left), height(root->right)) + 1;
-}
-
+//Classe de comporação para a fila de proridade
 class Compare
 {
     public:
@@ -40,6 +38,7 @@ class Compare
     }
 };
 
+//Função que lê e retorna string do caminho de arquivo
 std::string read_path(){
   std::string path;
   std::wcout<< L"Insira caminho do arquivo: ";
@@ -47,6 +46,7 @@ std::string read_path(){
   return path;
 }
 
+//Função que calcula a frequência e retorna o unordered_map com caracter/frequência para a construção da árvore
 std::unordered_map<wchar_t, int> calculate_frequency(const std::string path){
     std::wifstream arq(path);
     std::unordered_map<wchar_t, int> caracter_count;
@@ -64,14 +64,16 @@ std::unordered_map<wchar_t, int> calculate_frequency(const std::string path){
     return caracter_count;
 }
 
+//Função que constrói a árvore de huffman
 node* create_huffman(std::unordered_map<wchar_t, int> frequency){
         std::priority_queue<node*,std::vector<node*>,Compare> pq;
         for (auto p : frequency) {
             auto nodeC = create_node(p.first,p.second);
             pq.push(nodeC);
         }
-        while(pq.size()!=1){
-            auto *left = pq.top();
+        while(pq.size()!=1){                        // left -> b|2
+            auto *left = pq.top();  // a|3 / b|2  -> I|5
+                                                    //right -> a|3
             pq.pop();            
             auto *right = pq.top();
             pq.pop();
@@ -86,6 +88,7 @@ node* create_huffman(std::unordered_map<wchar_t, int> frequency){
         return root;   
 }
 
+// Gera o código varrendo árvore de huffman e concatenando 0 e 1 no unorderep_map de argumento
 void generate_codification(std::unordered_map<wchar_t, std::wstring> &dicionario, node *root, const std::wstring &caminho) {
   if (root->left == nullptr && root->right == nullptr) {
     dicionario[root->caracter] = caminho;
@@ -118,6 +121,7 @@ void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminh
     auto aspas = L"\"";
     std::wstring nodeId = std::to_wstring(root->frequency) + caminho;
 
+    // Concatena a string do nó folha 
     if (root->left == nullptr && root->right == nullptr) {
         dot += aspas + nodeId + aspas;
         dot += L"[shape=record, label=\"{{";
@@ -128,28 +132,30 @@ void showTreeRecursive(std::wstring &dot, node *root, const std::wstring &caminh
         dot += caminho;
         dot += L"}\"];\n";
     } else {
+        //Concatena a string do nó intermediário
         dot += aspas + nodeId + aspas;
         dot += L"[label=";
         dot += std::to_wstring(root->frequency);
         dot += L"];\n";
-
+        // Concatena a string da conexão do intermediário -> esquerda
         std::wstring leftId = std::to_wstring(root->left->frequency) + caminho + L"0";
         dot += aspas + nodeId + aspas;
         dot += L"->";
         dot += aspas + leftId + aspas;
         dot += L";\n";
-
+        // Concatena a string da conexão do intermediário -> direito
         std::wstring rightId = std::to_wstring(root->right->frequency) + caminho + L"1";
         dot += aspas + nodeId + aspas;
         dot += L"->";
         dot += aspas + rightId + aspas;
         dot += L"[label=1];\n";
-
+        //Continua recursivamente
         showTreeRecursive(dot, root->left, caminho + L"0");
         showTreeRecursive(dot, root->right, caminho + L"1");
     }
 }
 
+// Função que constrói o arquivo dot e mostra na tela
 void showTree(node *root) {
     std::wofstream dot("/tmp/huffman.dot");
     dot << L"digraph G {\n";
@@ -188,19 +194,25 @@ void showFrequenciesTable(node* root, std::string path, std::unordered_map<wchar
     showFrequencies(caracter_count, dicionario);
 }
 
+int getFileFize(std::filesystem::path filePath){
+  return std::filesystem::file_size(filePath);
+}
+
+// 00101010  10101011 10001101  011
 void compress(std::wstring encodedString){ //implementar para que árvore seja guardada com o compactado
   FILE *arquivo = fopen("compactado.bin","wb");
   int i =0,j=7;
-  unsigned char mascara,byte = 0;
+  unsigned char mascara,byte = 0; // 01100000
+  //char = 1byte - 8bits
 
   if(arquivo){
     while (encodedString[i]!= L'\0')
     {
-        mascara = 1;
+        mascara = 1; //0000100
         if(encodedString[i] == L'1'){
-          mascara = mascara << j;
-          byte = byte | mascara;
-        }
+          mascara = mascara << j; //0000100
+          byte = byte | mascara;  //0010000
+        }                        //00101010
         j--;
         if(j<0){
           fwrite(&byte,sizeof(unsigned char),1,arquivo);
@@ -234,12 +246,18 @@ void compressFile(node* root, std::string path){
     inFile.close();
     compress(buffer);
 
+    std::wcout << L"Tamanho arquivo original: " << getFileFize(path) << std::endl;
+    std::wcout << L"Tamanho arquivo compactado: " << getFileFize("compactado.bin") << std::endl;
+    std::wcout << L"Diferença em bits: " << getFileFize(path) - getFileFize("compactado.bin") << std::endl;
+    std::wcout << L"Percentual de compactação: " << (double)getFileFize("compactado.bin")/getFileFize(path)*100<< L"%" << std::endl;
+
 }
 
 unsigned int isBitOne(unsigned char byte, int i){
   unsigned char mascara = (1<<i);
   return byte & mascara;
-
+  ///00001001
+  ///00000010
 }
 
 void descompressFile(node *root) { //implementar para que árvore seja guardada com o compactado
