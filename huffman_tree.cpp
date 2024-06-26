@@ -147,23 +147,57 @@ void showTree(node *root) {
     system("dot /tmp/huffman.dot -Tx11");
 }
 
+void compress(std::wstring encodedString){
+  FILE *arquivo = fopen("compactado.bin","wb");
+  int i =0,j=7;
+  unsigned char mascara,byte = 0;
+
+  if(arquivo){
+    while (encodedString[i]!= L'\0')
+    {
+        mascara = 1;
+        if(encodedString[i] == L'1'){
+          mascara = mascara << j;
+          byte = byte | mascara;
+        }
+        j--;
+        if(j<0){
+          fwrite(&byte,sizeof(unsigned char),1,arquivo);
+          byte = 0;
+          j = 7;
+        }
+        i++;
+    }
+    if(j!=7){
+      fwrite(&byte,sizeof(unsigned char),1,arquivo);
+    }
+    fclose(arquivo);  
+    std::wcout << L"=========== Arquivo comprimido! ===========\n";
+
+  }else{
+    std::wcout << L"Erro fazer arquivo compactado!\n";
+  }
+
+}
+
 void compressFile(){
     auto path = read_path();
     auto caracter_count = calculate_frequency(path);
     auto root = create_huffman(caracter_count);
     std::unordered_map<wchar_t, std::wstring> dicionario;
-    generate_codification(dicionario,root,L"");
-    showTree(root);
-    // for (const auto &entry : dicionario) {
-    //     std::wcout << entry.first << L": " << entry.second.c_str() << std::endl;
-    // }
+    generate_codification(dicionario, root, L"");
+
+    std::wifstream inFile(path, std::ios::binary);
+    std::wstring buffer;
+    wchar_t ch;
+    while (inFile.get(ch)) {
+        buffer += dicionario[ch];
+    }
+    inFile.close();
+    compress(buffer);
+
 }
 
-void descompressFile(){
-  
+void descompressFile() {
 }
-
-
-
-
 };

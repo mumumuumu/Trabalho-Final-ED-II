@@ -16,7 +16,7 @@ int main() {
         std::cin >> op;
         switch (op) {
         case 1:
-            //huffman_tree::compressFile();
+            huffman_tree::compressFile();
             break;
         case 2: {
             auto path = huffman_tree::read_path();
