@@ -109,6 +109,8 @@ std::wstring escapeCharacter(wchar_t ch) {
             return L"\\r";
         case L' ':
             return L"espaço";
+        case L'"':
+            return L"aspas";
         default:
             return std::wstring(1, ch);
     }
